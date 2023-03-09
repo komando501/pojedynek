@@ -22,6 +22,11 @@ public class PlayerControler : MonoBehaviour {
 
     private Animator anim;
 
+    public GameObject projectile;
+    public Transform shootPoint;
+
+    public Vector3 cursor;
+
 
     // Start is called before the first frame update
     void Start(){
@@ -34,6 +39,8 @@ public class PlayerControler : MonoBehaviour {
     // Update is called once per frame
     void Update()
     {
+        cursor = Input.mousePosition;
+
         isGrounded = Physics2D.OverlapCircle(groundCheckPoint.position, groundCheckRadius, groundCheckLayerMask);
         if (Input.GetKey(left))
         {
@@ -48,10 +55,26 @@ public class PlayerControler : MonoBehaviour {
         }
         if (Input.GetKeyDown(up) && isGrounded)
         {
-            theRB.velocity = new Vector2(theRB.velocity.x, jumpForce);  
+            theRB.velocity = new Vector2(theRB.velocity.x, jumpForce);
         }
 
-        anim.SetFloat("Speed",theRB.velocity.x);
+        if (theRB.velocity.x < 0)
+        {
+            transform.localScale = new Vector3(-1, 1, 1);
+
+        }else if (theRB.velocity.x > 0)
+        {
+            transform.localScale = new Vector3(1, 1, 1);
+        }
+
+        if (Input.GetKeyDown(shoot))
+        {
+            GameObject ballClone = (GameObject)Instantiate(projectile,shootPoint.position,shootPoint.rotation);
+            ballClone.transform.localScale = transform.localScale;
+            anim.SetTrigger("Shoot");
+        }
+
+        anim.SetFloat("Speed",Mathf.Abs(theRB.velocity.x));
         anim.SetBool("Grounded", isGrounded);
     }
 }
